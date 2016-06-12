@@ -1,0 +1,50 @@
+@CHARSET "ISO-8859-1";
+
+label {
+   display: inline-block;
+   width: 5em;
+ }
+ 
+button.upload{
+ 	min-width:90px;
+    padding: 2px 5px 2px 5px;
+    display: inline-block;
+ }
+
+button.upload:disabled img{
+	opacity: 0.5;
+    filter: alpha(opacity=50); /* For IE8 and earlier */
+	white-space: nowrap;
+ }
+
+button img{
+	opacity: 0.8;
+    filter: alpha(opacity=80); /* For IE8 and earlier */
+    height: 24px; 
+    width:24px; 
+    vertical-align: middle;
+}
+
+button.browse{
+ 	min-width:130px;
+    padding: 2px 5px 2px 5px;
+    display: inline-block;
+	white-space: nowrap;
+}
+ 
+label.checkbox{
+    display: inline-block;
+	white-space: nowrap;
+	color: black;
+	font-size: 0.9em;
+	
+}
+ 
+ input.filename:disabled{
+ 	background:#f5f5f5;
+ 	height:32px
+ }
+ 
+ .scrollable {
+    overflow-y: auto;
+}
