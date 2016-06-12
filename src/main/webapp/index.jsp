@@ -2,17 +2,16 @@
 	pageEncoding="ISO-8859-1"%>
 <html>
 <head>
-	<title>Metadata Upload Rest Client</title>
+	<title>CKAN Uploader</title>
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
       <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600" rel="stylesheet" type="text/css">
       <link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,700" rel="stylesheet" type="text/css">
-      <link href="http://www.envidat.ch/css/envidat_datacite.css" rel="Stylesheet" type="text/css">
       <link rel="stylesheet" type="text/css" href="css/metadata_style.css">
-      <link rel="shortcut icon" href="http://www.envidat.ch/css/envidat-logo-icon.ico">
+      <link rel="shortcut icon" href="images/envidat-ckan-favicon.ico">
 </head>
 <body>
 	<div align="center">
-		<h1>Metadata Upload Client </h1>
+		<h1>CKAN Upload Client </h1>
 	</div>
 
 	<div class="hidden">
@@ -23,42 +22,70 @@
 	<div style="width: 100%;" >	
 		<fieldset>
 			<legend>
-				Upload File
+				Resource Data
 			</legend>
 			<table style="width: 100%; border: 0px;">
-				<tr>
-					<td style="width: 100%;">
-						<input type="text" id="text_metadata_name" readonly="readonly" class="filename" disabled style="width: 99%;"/> 
-					</td>	
-					<td>
-						<button type="submit" id="button_browse_metadata" class="browse">
-							<img alt="" src="images/folder_document.png"/>
-							<span style="vertical-align: middle;">Choose Metadata...</span> 
-						</button>
-					</td>	
-					<td  style="padding-left: 5px;">
-						<button id="upload_metadata" type="submit" class="upload" >
-							<img alt="" src="images/cloud_upload.png"/>
-							<span style="vertical-align: middle;">Upload</span> 
-						</button>
-					</td>
-				</tr>
-				<tr>
-					<td style="width: 100%;">
-						<input type="text" id="text_datafile_name" readonly="readonly" class="filename" disabled style="width: 99%;"/> 
-					</td>	
-					<td>
-						<button type="submit" id="button_browse_datafile" class="browse"">
-							<img alt="" src="images/folder_document.png"/>
-							<span style="vertical-align: middle;">Choose Data File...</span> 
-						</button>
-					</td>	
-					<td  style="padding-left: 5px; display: inline-block;">
-						
-					</td>
-				</tr>
+			    <thead></thead>
+			    <tbody>
+					<tr>
+						<td align="right">
+						    <label class= "field" >User Token: </label>
+						</td>	
+						<td style="width: 99%;">
+							<input type="text" id="text_user_token" class="data" style="width: 100%;"/> 
+						</td>	
+					</tr>
+					<tr>
+						<td>
+						    <label class= "field">Package Name: </label>
+						</td>	
+						<td style="width: 99%;">
+							<input type="text" id="text_package_name" class="data" style="width: 100%;"/> 
+						</td>	
+					</tr>
+				</tbody>
+			</table>
+		</fieldset>	
+		</div>
+		<div style="width: 100%;" >	
+		<fieldset>
+			<legend>
+				Upload File(s)
+			</legend>
+			<table style="width: 100%; border: 0px;">
+			    <thead></thead>
+			    <tbody>
+					<tr>
+						<td style="width: 100%;">
+							<input type="text" id="text_metadata_name" readonly="readonly" class="filename" disabled style="width: 99%;"/> 
+						</td>	
+						<td>
+							<button type="submit" id="button_browse_metadata" class="browse">
+								<img alt="" src="images/folder_document.png"/>
+								<span style="vertical-align: middle;">Choose Metadata...</span> 
+							</button>
+						</td>	
+					</tr>
+					<tr>
+						<td style="width: 100%;">
+							<input type="text" id="text_datafile_name" readonly="readonly" class="filename" disabled style="width: 99%;"/> 
+						</td>	
+						<td>
+							<button type="submit" id="button_browse_datafile" class="browse"">
+								<img alt="" src="images/folder_document.png"/>
+								<span style="vertical-align: middle;">Choose Data Files...</span> 
+							</button>
+						</td>	
+					</tr>
+				</tbody>
 			</table>
 		</fieldset>
+		<div  style="width: 100%;"  align="center">
+			<button id="upload_metadata" type="submit" class="upload" >
+				<img alt="" src="images/cloud_upload.png"/>
+				<span style="vertical-align: middle;align:center;">CKAN UPLOAD</span> 
+			</button>
+		</div>				
 	</div>
 
 	<div>
