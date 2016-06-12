@@ -2,17 +2,11 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>ch.wsl.envidat</groupId>
-		<artifactId>envidat-config</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
-	</parent>
-
-	<groupId>ch.wsl.envidat.metadata</groupId>
-	<artifactId>metadataUpload</artifactId>
+	<groupId>ch.wsl.envidat.ckan</groupId>
+	<artifactId>ckanUploader</artifactId>
 	<packaging>war</packaging>
-	<name>Metadata Search</name>
-	<description>REST client to upload metadata in DataCite format (Solr)</description>
+	<name>CKAN Uploader</name>
+	<description>REST client to upload metadata in DataCite format and data to CKAN</description>
 
 
 	<dependencies>
@@ -25,16 +19,8 @@
 	</dependencies>
 	
 	<build>
-		<finalName>MetadataUpload</finalName>
+		<finalName>CkanUploader</finalName>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
-				</configuration>
-			</plugin>
 			
 			<!-- Envidat Test Server -->
 			<plugin>
@@ -42,23 +28,11 @@
    		  		<artifactId>tomcat7-maven-plugin</artifactId>
 				<version>2.2</version>
 		 		<configuration>
-					<url>http://envidat01.wsl.ch:8080/manager/text</url>
-					<server>EnvidatDevelopment</server>
-					<path>/MetadataUpload</path>
+					<url>http://envidat01.wsl.ch:8090/manager/text</url>
+					<server>EnvidatCKAN</server>
+					<path>/CkanUploader</path>
 				</configuration>
 			</plugin>
-			
-<!-- 			<plugin> -->
-<!--         		<groupId>org.apache.tomcat.maven</groupId> -->
-<!--    		  		<artifactId>tomcat7-maven-plugin</artifactId> -->
-<!-- 				<version>2.2</version> -->
-<!-- 		 		<configuration> -->
-<!-- 					<url>http://localhost:1980/manager/text</url> -->
-<!-- 					<server>TomcatLocal</server> -->
-<!-- 					<path>/MetadataUpload</path> -->
-<!-- 				</configuration> -->
-<!-- 			</plugin> -->
-
 		</plugins>
 	</build>
 	
