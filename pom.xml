@@ -6,6 +6,7 @@
 	<artifactId>ckanUploader</artifactId>
 	<packaging>war</packaging>
 	<name>CKAN Uploader</name>
+	<version>1.0</version>
 	<description>REST client to upload metadata in DataCite format and data to CKAN</description>
 
 
