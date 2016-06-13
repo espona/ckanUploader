@@ -71,7 +71,7 @@
 							<input type="text" id="text_datafile_name" readonly="readonly" class="filename" disabled style="width: 99%;"/> 
 						</td>	
 						<td>
-							<button type="submit" id="button_browse_datafile" class="browse"">
+							<button type="submit" id="button_browse_datafile" class="browse">
 								<img alt="" src="images/folder_document.png"/>
 								<span style="vertical-align: middle;">Choose Data Files...</span> 
 							</button>
@@ -98,7 +98,10 @@
 		</fieldset>
 	</div>
 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>
-	<script src="metadata_upload_script.js"></script>
+	<script type="text/javascript" src="js/ckan_uploader_form.js"></script>
+	<script type="text/javascript" src="js/ckan_uploader_api.js"></script>
+	<script type="text/javascript" src="js/ckan_uploader_metadata.js"></script>
+	<script type="text/javascript" src="js/ckan_uploader_main.js"></script>
 	
 </body>
 </html>
