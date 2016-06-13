@@ -10,6 +10,7 @@
 		
 		$('#text_user_token').val("aa1247a9-92c3-494d-90ba-7a3bf1dab7bd");
 		$('#text_package_name').val("test-ckanuploader");
+		$('#text_organization').val("wsl");
 	};
 
 	function resetReport() {
@@ -26,6 +27,7 @@
 		
 		if (! $('#text_user_token').val())    return;
 		if (! $('#text_package_name').val())  return;
+		if (! $('#text_organization').val())  return;
 		
 		if ($('#metadata_browser').val()) $('#upload_metadata').prop('disabled', false);
 		if ($('#datafile_browser').val()) $('#upload_metadata').prop('disabled', false);

@@ -1,19 +1,18 @@
 
 $(document)	.ready(function() {
-	
-	var METADATA_XML = "";
-		
+			
 	// MAIN FUNCTION
-	function upload(token, name, metadata, datafile) {
+	function upload(token, name, organization, metadata, datafile) {
 			
 		report  = " UPLOAD: Package " + name ;
         displayReport("<p>" + report + "</p>");
         
         // Check if package exists, create blank otherwise
         var package_data = getPackage(token, name);
-        console.log(package_data)
         if (typeof package_data === "undefined") {
-            displayReport("<p> Create package ...</p>");        	
+            displayReport("<p> Create package ...</p>");    
+            package_data = createEmptyPackage(token, name, organization);
+            displayReport("<p> Created Package, id:" + package_data.id + "</p>");
         }
         else {
             displayReport("<p> Package Exists, id:" + package_data.id + "</p>");
@@ -47,15 +46,15 @@ $(document)	.ready(function() {
 	
 
 
-	function preProcess(token, name, metadatafile, datafile){
+	function preProcess(token, name, organization, metadatafile, datafile){
 	      var reader = new FileReader();
 
 	      reader.onload = function (e) {
               displayReport("<p> Reading metadata </p>");
-	    	  upload(token, name, reader.result, datafile);
+	    	  upload(token, name, organization, reader.result, datafile);
 	       };
 	      
-	      if (typeof metadatafile === "undefined") {upload(token, name, "", datafile);}
+	      if (typeof metadatafile === "undefined") {upload(token, name, organization, "", datafile);}
 	      else { reader.readAsText(metadatafile);}
 	 }
 	 
@@ -91,12 +90,16 @@ $(document)	.ready(function() {
 	// Package Name
 	$('#text_package_name').change(function(){ uploadButtonCheckEnable(); });
 	
+	// Organization
+	$('#text_organization').change(function(){ uploadButtonCheckEnable(); });
+	
 	// Upload
 	$('#upload_metadata').click(function() {
 		resetReport();
 		
 		var user_token = $('#text_user_token').val();
 		var package_name = $('#text_package_name').val();
+		var organization = $('#text_organization').val();
 				
 	    // metadata selected
 		var metadatafile = undefined;
@@ -110,7 +113,7 @@ $(document)	.ready(function() {
 			datafile = $('#datafile_browser').get(0).files[0];
 		}
 			
-		preProcess(user_token, package_name, metadatafile, datafile);
+		preProcess(user_token, package_name, organization, metadatafile, datafile);
 
 	});
 	

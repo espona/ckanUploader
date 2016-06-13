@@ -24,6 +24,37 @@
         return(package_data);    	
     };
     
+    function createEmptyPackage(user_token, package_name, organization){
+		var organization_id = organization;
+		var package_data = undefined;
+	
+		var ckan_url_create_package = CKAN_URL + 'package_create';
+
+		$.ajax({
+		  url : ckan_url_create_package,
+		  type : 'POST',
+		  async: false,
+          headers: {
+        	  'X-CKAN-API-Key':user_token
+          },
+		  data : JSON.stringify({
+			  'name': package_name,
+			  'title': encodeURIComponent(package_name),
+			  'owner_org': organization_id,
+			  'notes': 'Package Created from CKAN Uploader Webapp'
+		  }),
+          dataType: "json",
+		  success : function(response, data) {
+				package_data = response.result
+		  },
+		  error : function(response) {
+			  console.error(response)
+			}
+		});
+		return (package_data);
+    	
+    };
+    
 	function dataUpload(xml_string, datafile) {
 		console.log(datafile);
 		

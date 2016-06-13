@@ -43,6 +43,14 @@
 							<input type="text" id="text_package_name" class="data" style="width: 100%;"/> 
 						</td>	
 					</tr>
+					<tr>
+						<td>
+						    <label class= "field">Organization: </label>
+						</td>	
+						<td style="width: 99%;">
+							<input type="text" id="text_organization" class="data" style="width: 100%;"/> 
+						</td>	
+					</tr>
 				</tbody>
 			</table>
 		</fieldset>	
