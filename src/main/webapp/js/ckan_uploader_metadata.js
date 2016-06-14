@@ -1,3 +1,23 @@
+
+function  mergeMetadata(package_data, metadata_string){
+	
+	// Parse new metadata into JSON
+	var metadata_json = parseMetadataXml(metadata_string);
+	console.log(metadata_json);
+	
+	// Merge-Update
+	
+}
+
+function parseMetadataXml(metadata_xml){
+	var metadata_dom = parseXml(metadata_xml);
+	var metadata_json = xml2json(metadata_dom);
+    return(metadata_json);	
+}
+
+
+
+//********OLD
 // DOM RELATED
 	function getDoi(xml){
 		xmlDoc = $.parseXML( xml );

@@ -106,6 +106,7 @@
 		</fieldset>
 	</div>
 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>
+	<script type="text/javascript" src="js/lib/xml2json.js"></script>
 	<script type="text/javascript" src="js/ckan_uploader_form.js"></script>
 	<script type="text/javascript" src="js/ckan_uploader_api.js"></script>
 	<script type="text/javascript" src="js/ckan_uploader_metadata.js"></script>

@@ -23,7 +23,8 @@ $(document)	.ready(function() {
             displayReport("<p> No metadata to update</p>");
         }
         else {
-            displayReport("<p> Updating Metadata ...</p>");        	
+            displayReport("<p> Updating Metadata ...</p>");   
+            package_data = mergeMetadata(package_data, metadata)
         }
         
         // Add Resource
