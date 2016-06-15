@@ -173,6 +173,6 @@ function parseXml(xml) {
 	      catch (e) { dom = null; }
 	   }
 	   else
-	      alert("cannot parse xml string!");
+	      console.error("cannot parse xml string!");
 	   return dom;
 	}
