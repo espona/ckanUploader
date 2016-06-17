@@ -20,35 +20,64 @@ function xmlString2json(metadata_xml){
     return(JSON.parse(metadata_json));	
 }
 
-
 function datacite2package(datacite_string){
+	// create blank package data
+	var ckan_package = new Object();
 
 	// Parse metadata into JSON
 	var metadata_json = xmlString2json(datacite_string);
 
-	console.log(Object.keys(metadata_json.resource));
+	// Get the datacite resource
+	if ('resource' in metadata_json) {
+		// Fill up package data
+		var resource = metadata_json.resource;
+	
+		// TITLE(S)
+		if ("titles" in resource){
+			if  (typeof resource.titles !== "undefined") {
+				if ('title' in resource.titles){
+					resource.titles.title.forEach( function (title) {
+						if (title['#text'].length >0) {
+							// First title without type is the main title, the rest subtitles
+							if ('@titleType' in title || typeof ckan_package.title !== "undefined"){
+								//Composite Repeating Field: "subtitle" (Subtitles) = [{"subtitle", "type" : ["alternative_title","subtitle","translated_title"], "language" : ["en","de","fr","it","ro"]}]
+								if (typeof ckan_package.subtitle === 'undefined'){
+									ckan_package.subtitle = [];
+								}
+								
+								var subtitle = {"subtitle": title['#text']};
+								if ('@titleType' in title) subtitle.type = dataciteTitleType2ckan(title['@titleType']);
+								if ('@xml:lang' in title) subtitle.language = title['@xml:lang'];
+									
+								ckan_package.subtitle.push(subtitle);
+								
+							}
+							else{
+								//Field: "title" (Title)
+								ckan_package.title = title['#text'];																
+							}
+						}
+					} );
+				}
+			}
+		}	
 		
-	// Fill up package data
-	var ckan_package = new Object();
-	
-	//Field: "title" (Title)
-	
-	
-	//Field: "name" (URL)
-	//Field: "doi" (DOI)
-	//Composite Repeating Field: "author" (Authors) = [{"name", "affiliation", "email", "identifier", "identifier_scheme":["orcid","isni","rid","rgate"]}]
-	//Field: "owner_org" (Organization)
-	//Composite Repeating Field: "subtitle" (Subtitles) = [{"subtitle", "type" : ["alternative_title","subtitle","translated_title"], "language" : ["en","de","fr","it","ro"]}]
-	//Composite Field: "publication" (Publication) = {"publisher", "publication_year"}
-	//Field: "notes" (Description)
-	//Object List Field (?): "tags" (Subjects) = [{"vocabulary_id", "state", "display_name", "id", "name"}]
-	//Field: "license_id (? license_url, license_title)" (License) =  ["notspecified", "odc-pddl", "odc-odbl", "odc-by", "cc-zero", "cc-by", "cc-by-sa", "gfdl", "other-open", "other-pd", "other-at", "uk-ogl", "cc-nc", "other-nc", "other-closed"]
-	// - Values as a dictionary: http://envidat02.wsl.ch:5000/api/action/license_list
-	//Field: "version" (Version)
-	//Field: "resource_type" (Type)
-	//Field: "resource_type_general (General Type) = ["audiovisual","collection","dataset","event","image","interactive_resource","model","physical_object","service","software","sound","text", "other"]
-	//Composite Field: "maintainer"(Contact) = {"name","affiliation", "email", "identifier", "identifier_scheme":["orcid","isni","rid","rgate"]}
+		//Field: "name" (URL)
+		//Field: "doi" (DOI)
+		//Composite Repeating Field: "author" (Authors) = [{"name", "affiliation", "email", "identifier", "identifier_scheme":["orcid","isni","rid","rgate"]}]
+		//Field: "owner_org" (Organization)
+		//Composite Field: "publication" (Publication) = {"publisher", "publication_year"}
+		//Field: "notes" (Description)
+		//Object List Field (?): "tags" (Subjects) = [{"vocabulary_id", "state", "display_name", "id", "name"}]
+		//Field: "license_id (? license_url, license_title)" (License) =  ["notspecified", "odc-pddl", "odc-odbl", "odc-by", "cc-zero", "cc-by", "cc-by-sa", "gfdl", "other-open", "other-pd", "other-at", "uk-ogl", "cc-nc", "other-nc", "other-closed"]
+		// - Values as a dictionary: http://envidat02.wsl.ch:5000/api/action/license_list
+		//Field: "version" (Version)
+		//Field: "resource_type" (Type)
+		//Field: "resource_type_general (General Type) = ["audiovisual","collection","dataset","event","image","interactive_resource","model","physical_object","service","software","sound","text", "other"]
+		//Composite Field: "maintainer"(Contact) = {"name","affiliation", "email", "identifier", "identifier_scheme":["orcid","isni","rid","rgate"]}
 
+	}
+	console.log(ckan_package)
     return(ckan_package);
 }
 
@@ -59,6 +88,17 @@ function mergePackages(old_package_data, new_package_data) {
 	return(merged_package);
 
 }
+
+// DataCite translator functions
+function dataciteTitleType2ckan(title_type){
+	var title_type_dict = {"AlternativeTitle":"alternative_title", "Subtitle":"subtitle", "TranslatedTitle":"translated_title"};
+	
+	if (title_type in title_type_dict)
+		return title_type_dict[title_type];
+	else
+		return "";
+}
+
 
 //********OLD
 // DOM RELATED
