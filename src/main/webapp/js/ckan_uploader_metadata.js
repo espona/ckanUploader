@@ -11,6 +11,7 @@ function mergeMetadata(package_data, metadata_string){
 }
 
 function xmlString2json(metadata_xml){
+	
 	var metadata_dom = parseXml(metadata_xml);
 	var metadata_json = xml2json(metadata_dom);
  
@@ -20,51 +21,88 @@ function xmlString2json(metadata_xml){
     return(JSON.parse(metadata_json));	
 }
 
+function asArray(object, default_key){
+	if  (typeof object === "undefined") return [];
+	
+	if( Object.prototype.toString.call(object) !== '[object Array]' ) {
+		return ([( (typeof object === 'string') ? {[default_key]:object} : object )]);
+	}
+
+	return object;
+}
+
 function datacite2package(datacite_string){
 	// create blank package data
 	var ckan_package = new Object();
 
 	// Parse metadata into JSON
 	var metadata_json = xmlString2json(datacite_string);
-
+	console.log(metadata_json);
+	
 	// Get the datacite resource
 	if ('resource' in metadata_json) {
 		// Fill up package data
 		var resource = metadata_json.resource;
 	
 		// TITLE(S)
-		if ("titles" in resource){
-			if  (typeof resource.titles !== "undefined") {
-				if ('title' in resource.titles){
-					resource.titles.title.forEach( function (title) {
-						if (title['#text'].length >0) {
-							// First title without type is the main title, the rest subtitles
-							if ('@titleType' in title || typeof ckan_package.title !== "undefined"){
-								//Composite Repeating Field: "subtitle" (Subtitles) = [{"subtitle", "type" : ["alternative_title","subtitle","translated_title"], "language" : ["en","de","fr","it","ro"]}]
-								if (typeof ckan_package.subtitle === 'undefined'){
-									ckan_package.subtitle = [];
-								}
-								
-								var subtitle = {"subtitle": title['#text']};
-								if ('@titleType' in title) subtitle.type = dataciteTitleType2ckan(title['@titleType']);
-								if ('@xml:lang' in title) subtitle.language = title['@xml:lang'];
-									
-								ckan_package.subtitle.push(subtitle);
-								
-							}
-							else{
-								//Field: "title" (Title)
-								ckan_package.title = title['#text'];																
-							}
-						}
-					} );
+		if  (typeof resource.titles !== "undefined") {
+
+			var subtitles = [];
+
+			// If single object, make it an array. If it is a string, make it an object first.
+			resource.titles.title = asArray( resource.titles.title, '#text');
+			
+			// Loop through titles
+			resource.titles.title.forEach( function (title) {
+				if (title['#text'].length >0) {
+					// First title without type is the main title, the rest subtitles
+					if ('@titleType' in title || typeof ckan_package.title !== "undefined"){
+						//Composite Repeating Field: "subtitle" (Subtitles) = [{"subtitle", "type" : ["alternative_title","subtitle","translated_title"], "language" : ["en","de","fr","it","ro"]}]			
+						var subtitle = {'subtitle': title['#text'], 
+								        'type': dataciteTitleType2ckan(title['@titleType']), 
+								        'language': ((typeof title['@xml:lang'] === 'undefined') ? "" : title['@xml:lang']) 
+								        };
+						subtitles.push(subtitle);					
+					}
+					else{
+						//Field: "title" (Title)
+						ckan_package.title = title['#text'];																
+					}
 				}
-			}
-		}	
+			} );
+			if (subtitles.length>0) ckan_package.subtitle = JSON.stringify(subtitles);
+		}
+		
+		// AUTHORS
+		if  (typeof resource.creators !== "undefined") {
+			var authors = [];
+			
+			// If single object, make it an array. If it is a string, make it an object first.
+			resource.creators.creator = asArray( resource.creators.creator, 'creatorName');
+
+			// Loop through creators
+			resource.creators.creator.forEach( function (creator) {
+				if (creator['creatorName'].length >0) {
+
+					//Composite Repeating Field: "author" (Authors) = [{"name", "affiliation", "email", "identifier", "identifier_scheme":["orcid","isni","rid","rgate"]}]
+					var author = {"name": creator['creatorName'],
+							      "affiliation": dataciteAffiliation2string(creator.affiliation),
+							      "email":"",
+							      "identifier":dataciteNameIdentifier2ckan(creator.nameIdentifier)['identifier'],
+								  "identifier_scheme":dataciteNameIdentifier2ckan(creator.nameIdentifier)['identifier_scheme']
+							};
+					authors.push(author);					
+				}
+			} );
+			if (authors.length>0) ckan_package.author = JSON.stringify(authors);
+		
+		}
+		
+		//Composite Repeating Field: "author" (Authors) = [{"name", "affiliation", "email", "identifier", "identifier_scheme":["orcid","isni","rid","rgate"]}]
+
 		
 		//Field: "name" (URL)
 		//Field: "doi" (DOI)
-		//Composite Repeating Field: "author" (Authors) = [{"name", "affiliation", "email", "identifier", "identifier_scheme":["orcid","isni","rid","rgate"]}]
 		//Field: "owner_org" (Organization)
 		//Composite Field: "publication" (Publication) = {"publisher", "publication_year"}
 		//Field: "notes" (Description)
@@ -77,26 +115,53 @@ function datacite2package(datacite_string){
 		//Composite Field: "maintainer"(Contact) = {"name","affiliation", "email", "identifier", "identifier_scheme":["orcid","isni","rid","rgate"]}
 
 	}
-	console.log(ckan_package)
+	console.log(ckan_package);
     return(ckan_package);
 }
 
 function mergePackages(old_package_data, new_package_data) {
 
-	var merged_package = new Object();
+	var merged_package = jQuery.extend(true, {}, old_package_data);
+	
+	for (key in new_package_data) {
+		merged_package[key] = new_package_data[key];	
+	}
 	
 	return(merged_package);
 
 }
 
-// DataCite translator functions
+// DataCite conversion functions
+function dataciteAffiliation2string(affiliations){
+	var affiliations_str = "";
+	
+	if (typeof affiliations !== "undefined"){
+		var affiliations_array = asArray( affiliations, '#text');
+		affiliations_array.forEach( function (affiliation) { 
+			if (affiliation['#text'].length >0) {
+				if (affiliations_str.length >0) affiliations_str += ',';
+				affiliations_str += affiliation['#text'];
+			}
+		});
+	}
+	
+	return(affiliations_str);
+}
+
+function dataciteNameIdentifier2ckan(identifier){
+	var identifier_obj = {"identifier":"", "identifier_scheme":""};
+	
+	if (typeof identifier !== "undefined"){
+		identifier_obj.identifier = ((typeof identifier['#text'] === 'undefined')? "" : identifier['#text'])
+		identifier_obj.identifier_scheme = ((typeof identifier['@nameIdentifierScheme'] === 'undefined')? "" : identifier['@nameIdentifierScheme'].toLowerCase());
+	}
+	
+	return(identifier_obj);
+}
+
 function dataciteTitleType2ckan(title_type){
 	var title_type_dict = {"AlternativeTitle":"alternative_title", "Subtitle":"subtitle", "TranslatedTitle":"translated_title"};
-	
-	if (title_type in title_type_dict)
-		return title_type_dict[title_type];
-	else
-		return "";
+	return ((typeof title_type_dict[title_type] === 'undefined') ? "" : title_type_dict[title_type]);
 }
 
 

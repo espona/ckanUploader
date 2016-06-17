@@ -55,6 +55,32 @@
     	
     };
     
+    function updatePackage(user_token, package_data){
+	
+		var ckan_url_create_package = CKAN_URL + 'package_update';
+
+		$.ajax({
+		  url : ckan_url_create_package,
+		  type : 'POST',
+		  async: false,
+          headers: {
+        	  'X-CKAN-API-Key':user_token
+          },
+		  data : JSON.stringify(package_data),
+          dataType: "json",
+		  success : function(response, data) {
+				package_data = response.result
+		  },
+		  error : function(response) {
+			  console.error(response)
+			}
+		});
+		return (package_data);
+    	
+    };
+    
+    // OLD
+    
 	function dataUpload(xml_string, datafile) {
 		console.log(datafile);
 		

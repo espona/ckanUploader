@@ -25,6 +25,8 @@ $(document)	.ready(function() {
         else {
             displayReport("<p> Updating Metadata ...</p>");   
             package_data = mergeMetadata(package_data, metadata)
+            package_data = updatePackage(token, package_data)
+        	console.log(package_data)
         }
         
         // Add Resource
