@@ -24,11 +24,32 @@ function xmlString2json(metadata_xml){
 function asArray(object, default_key){
 	if  (typeof object === "undefined") return [];
 	
-	if( Object.prototype.toString.call(object) !== '[object Array]' ) {
-		return ([( (typeof object === 'string') ? {[default_key]:object} : object )]);
+	if( Object.prototype.toString.call(object) === '[object Array]' ) {
+		var object_array = [];
+		
+		object.forEach(function(element) {
+			if (typeof element !== 'undefined'){
+				object_array.push( asObject(element, default_key));
+			}
+		});
+		
+		return object_array;
+	}
+	else{
+		return ([asObject(object, default_key)]);
 	}
 
 	return object;
+}
+
+function asObject(object, default_key){
+	if (typeof object === 'undefined'){
+		return ({[default_key]:object});
+	}
+	else {
+		return( ((typeof object === 'string') ? {[default_key]:object} : object ));
+	}
+	
 }
 
 function datacite2package(datacite_string){
@@ -60,7 +81,7 @@ function datacite2package(datacite_string){
 						//Composite Repeating Field: "subtitle" (Subtitles) = [{"subtitle", "type" : ["alternative_title","subtitle","translated_title"], "language" : ["en","de","fr","it","ro"]}]			
 						var subtitle = {'subtitle': title['#text'], 
 								        'type': dataciteTitleType2ckan(title['@titleType']), 
-								        'language': ((typeof title['@xml:lang'] === 'undefined') ? "" : title['@xml:lang']) 
+								        'language': ((typeof title['@xml:lang'] === 'undefined') ? "" : title['@xml:lang']).substring(0,2)
 								        };
 						subtitles.push(subtitle);					
 					}
@@ -95,16 +116,24 @@ function datacite2package(datacite_string){
 				}
 			} );
 			if (authors.length>0) ckan_package.author = JSON.stringify(authors);
-		
 		}
 		
-		//Composite Repeating Field: "author" (Authors) = [{"name", "affiliation", "email", "identifier", "identifier_scheme":["orcid","isni","rid","rgate"]}]
-
-		
-		//Field: "name" (URL)
 		//Field: "doi" (DOI)
-		//Field: "owner_org" (Organization)
+		if (typeof resource.identifier !== "undefined"){
+			resource.identifier = asObject(resource.identifier, '#text');
+			if (resource.identifier['@identifierType'] === "DOI" && resource.identifier['#text'].length > 0) {
+				ckan_package.doi = resource.identifier['#text'];
+			}
+		}
+		
 		//Composite Field: "publication" (Publication) = {"publisher", "publication_year"}
+		if (typeof resource.publisher !== "undefined" || typeof resource.publicationYear !== "undefined" ){
+			ckan_package.publication = JSON.stringify({
+				                                   'publisher': ( (typeof resource.publisher === "undefined") ? '' : resource.publisher),
+				                                   'publication_year': ( (typeof resource.publicationYear === "undefined") ? '' : resource.publicationYear)
+												 });
+		}
+		
 		//Field: "notes" (Description)
 		//Object List Field (?): "tags" (Subjects) = [{"vocabulary_id", "state", "display_name", "id", "name"}]
 		//Field: "license_id (? license_url, license_title)" (License) =  ["notspecified", "odc-pddl", "odc-odbl", "odc-by", "cc-zero", "cc-by", "cc-by-sa", "gfdl", "other-open", "other-pd", "other-at", "uk-ogl", "cc-nc", "other-nc", "other-closed"]
@@ -114,8 +143,12 @@ function datacite2package(datacite_string){
 		//Field: "resource_type_general (General Type) = ["audiovisual","collection","dataset","event","image","interactive_resource","model","physical_object","service","software","sound","text", "other"]
 		//Composite Field: "maintainer"(Contact) = {"name","affiliation", "email", "identifier", "identifier_scheme":["orcid","isni","rid","rgate"]}
 
+		// No direct mapping:
+		//Field: "owner_org" (Organization)
+		//Field: "name" (URL)
+
 	}
-	//console.log(ckan_package);
+	console.log(ckan_package);
     return(ckan_package);
 }
 
