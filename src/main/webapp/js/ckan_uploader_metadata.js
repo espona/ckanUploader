@@ -115,7 +115,7 @@ function datacite2package(datacite_string){
 		//Composite Field: "maintainer"(Contact) = {"name","affiliation", "email", "identifier", "identifier_scheme":["orcid","isni","rid","rgate"]}
 
 	}
-	console.log(ckan_package);
+	//console.log(ckan_package);
     return(ckan_package);
 }
 
