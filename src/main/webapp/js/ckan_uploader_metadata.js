@@ -169,10 +169,14 @@ function datacite2package(datacite_string){
 			if (keywords.length>0) ckan_package.tags = keywords;
 		}
 
+		//Field: "version" (Version)
+		if (typeof resource.version !== "undefined"){
+			resource.version = asObject(resource.version, '#text')['#text']
+			if (resource.version.length >0 ) ckan_package.version = resource.version;
+		}
 		
 		//Field: "license_id (? license_url, license_title)" (License) =  ["notspecified", "odc-pddl", "odc-odbl", "odc-by", "cc-zero", "cc-by", "cc-by-sa", "gfdl", "other-open", "other-pd", "other-at", "uk-ogl", "cc-nc", "other-nc", "other-closed"]
 		// - Values as a dictionary: http://envidat02.wsl.ch:5000/api/action/license_list
-		//Field: "version" (Version)
 		//Field: "resource_type" (Type)
 		//Field: "resource_type_general (General Type) = ["audiovisual","collection","dataset","event","image","interactive_resource","model","physical_object","service","software","sound","text", "other"]
 		//Composite Field: "maintainer"(Contact) = {"name","affiliation", "email", "identifier", "identifier_scheme":["orcid","isni","rid","rgate"]}
