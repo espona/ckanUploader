@@ -135,7 +135,42 @@ function datacite2package(datacite_string){
 		}
 		
 		//Field: "notes" (Description)
+		if (typeof resource.descriptions !== "undefined"){
+			var notes = [];
+
+			// If single object, make it an array. If it is a string, make it an object first.
+			resource.descriptions.description = asArray( resource.descriptions.description, '#text');
+			
+			// Loop through descriptions
+			resource.descriptions.description.forEach( function (description) {
+				if (description['#text'].length >0) {
+					var description_type = ((typeof description["@descriptionType"] === 'undefined')? "": (description["@descriptionType"].length >0 ? description["@descriptionType"].trim() + ": ":"")); 
+					notes.push( description_type + description['#text'].trim());					
+					}
+			} );
+			
+			if (notes.length>0) ckan_package.notes = notes.join("\r\n \r\n");
+		}
+
+		/*
 		//Object List Field (?): "tags" (Subjects) = [{"vocabulary_id", "state", "display_name", "id", "name"}]
+		if (typeof resource.subjects !== "undefined"){
+			var keywords = [];
+
+			// If single object, make it an array. If it is a string, make it an object first.
+			resource.subjects.subject = asArray( resource.subjects.subject, '#text');
+			
+			// Loop through subjects
+			resource.subjects.subject.forEach( function (subject) {
+				if (subject['#text'].length >0) {
+					notes.push(subject['#text'].trim());					
+				}
+			} );
+			
+			if (notes.length>0) ckan_package.notes = notes.join("\r\n \r\n");
+		}
+		*/
+		
 		//Field: "license_id (? license_url, license_title)" (License) =  ["notspecified", "odc-pddl", "odc-odbl", "odc-by", "cc-zero", "cc-by", "cc-by-sa", "gfdl", "other-open", "other-pd", "other-at", "uk-ogl", "cc-nc", "other-nc", "other-closed"]
 		// - Values as a dictionary: http://envidat02.wsl.ch:5000/api/action/license_list
 		//Field: "version" (Version)
