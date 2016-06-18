@@ -152,7 +152,6 @@ function datacite2package(datacite_string){
 			if (notes.length>0) ckan_package.notes = notes.join("\r\n \r\n");
 		}
 
-		/*
 		//Object List Field (?): "tags" (Subjects) = [{"vocabulary_id", "state", "display_name", "id", "name"}]
 		if (typeof resource.subjects !== "undefined"){
 			var keywords = [];
@@ -163,13 +162,13 @@ function datacite2package(datacite_string){
 			// Loop through subjects
 			resource.subjects.subject.forEach( function (subject) {
 				if (subject['#text'].length >0) {
-					notes.push(subject['#text'].trim());					
+					keywords.push({"name":subject['#text'].trim().toUpperCase()});					
 				}
 			} );
 			
-			if (notes.length>0) ckan_package.notes = notes.join("\r\n \r\n");
+			if (keywords.length>0) ckan_package.tags = keywords;
 		}
-		*/
+
 		
 		//Field: "license_id (? license_url, license_title)" (License) =  ["notspecified", "odc-pddl", "odc-odbl", "odc-by", "cc-zero", "cc-by", "cc-by-sa", "gfdl", "other-open", "other-pd", "other-at", "uk-ogl", "cc-nc", "other-nc", "other-closed"]
 		// - Values as a dictionary: http://envidat02.wsl.ch:5000/api/action/license_list
