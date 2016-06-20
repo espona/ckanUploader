@@ -44,7 +44,7 @@ function asArray(object, default_key){
 
 function asObject(object, default_key){
 	if (typeof object === 'undefined'){
-		return ({[default_key]:object});
+		return ({[default_key]:""});
 	}
 	else {
 		return( ((typeof object === 'string') ? {[default_key]:object} : object ));
@@ -118,6 +118,7 @@ function datacite2package(datacite_string){
 			if (authors.length>0) ckan_package.author = JSON.stringify(authors);
 		}
 		
+		//DOI
 		//Field: "doi" (DOI)
 		if (typeof resource.identifier !== "undefined"){
 			resource.identifier = asObject(resource.identifier, '#text');
@@ -126,6 +127,7 @@ function datacite2package(datacite_string){
 			}
 		}
 		
+		//PUBLICATION
 		//Composite Field: "publication" (Publication) = {"publisher", "publication_year"}
 		if (typeof resource.publisher !== "undefined" || typeof resource.publicationYear !== "undefined" ){
 			ckan_package.publication = JSON.stringify({
@@ -134,6 +136,7 @@ function datacite2package(datacite_string){
 												 });
 		}
 		
+		//DESCRIPTION
 		//Field: "notes" (Description)
 		if (typeof resource.descriptions !== "undefined"){
 			var notes = [];
@@ -152,6 +155,7 @@ function datacite2package(datacite_string){
 			if (notes.length>0) ckan_package.notes = notes.join("\r\n \r\n");
 		}
 
+		//KEYWORDS
 		//Object List Field (?): "tags" (Subjects) = [{"vocabulary_id", "state", "display_name", "id", "name"}]
 		if (typeof resource.subjects !== "undefined"){
 			var keywords = [];
@@ -169,19 +173,47 @@ function datacite2package(datacite_string){
 			if (keywords.length>0) ckan_package.tags = keywords;
 		}
 
+		//VERSION
 		//Field: "version" (Version)
 		if (typeof resource.version !== "undefined"){
 			resource.version = asObject(resource.version, '#text')['#text']
-			if (resource.version.length >0 ) ckan_package.version = resource.version;
+			if (typeof resource.version.length >0 ) ckan_package.version = resource.version;
 		}
 		
+		// RESOURCE TYPE
+		if (typeof resource.resourceType !== "undefined"){
+			resource.resourceType = asObject(resource.resourceType, '#text')
+			//Field: "resource_type" (Type)
+			if (resource.resourceType['#text'].length >0 ) ckan_package.resource_type = resource.resourceType['#text'];
+			//Field: "resource_type_general (General Type) = ["audiovisual","collection","dataset","event","image","interactive_resource","model","physical_object","service","software","sound","text", "other"]
+			if (typeof resource.resourceType['@resourceTypeGeneral'] !== 'undefined') ckan_package.resource_type_general = resource.resourceType['@resourceTypeGeneral'].trim().toLowerCase()
+		}
+		
+		//CONTACT POINT
+		if  (typeof resource.contributors !== "undefined") {			
+			// If single object, make it an array. If it is a string, make it an object first.
+			resource.contributors.contributor = asArray( resource.contributors.contributor, 'contributorName');
+
+			// Loop through contributors
+			resource.contributors.contributor.forEach( function (contributor) {
+				if (contributor['contributorName'].length >0 &&  contributor['@contributorType'] === "ContactPerson"){
+
+					//Composite Field: "maintainer"(Contact) = {"name","affiliation", "email", "identifier", "identifier_scheme":["orcid","isni","rid","rgate"]}
+					var maintainer = {"name": contributor['contributorName'],
+							      	  "affiliation": dataciteAffiliation2string(contributor.affiliation),
+							      	  "email":"",
+							      	  "identifier":dataciteNameIdentifier2ckan(contributor.nameIdentifier)['identifier'],
+							      	  "identifier_scheme":dataciteNameIdentifier2ckan(contributor.nameIdentifier)['identifier_scheme']
+									};
+					ckan_package.maintainer = JSON.stringify(maintainer);
+					return;
+				}
+			} );
+		}
+		
+		//TODO: To be mapped(?):
 		//Field: "license_id (? license_url, license_title)" (License) =  ["notspecified", "odc-pddl", "odc-odbl", "odc-by", "cc-zero", "cc-by", "cc-by-sa", "gfdl", "other-open", "other-pd", "other-at", "uk-ogl", "cc-nc", "other-nc", "other-closed"]
 		// - Values as a dictionary: http://envidat02.wsl.ch:5000/api/action/license_list
-		//Field: "resource_type" (Type)
-		//Field: "resource_type_general (General Type) = ["audiovisual","collection","dataset","event","image","interactive_resource","model","physical_object","service","software","sound","text", "other"]
-		//Composite Field: "maintainer"(Contact) = {"name","affiliation", "email", "identifier", "identifier_scheme":["orcid","isni","rid","rgate"]}
-
-		// No direct mapping:
 		//Field: "owner_org" (Organization)
 		//Field: "name" (URL)
 
@@ -235,73 +267,3 @@ function dataciteTitleType2ckan(title_type){
 	return ((typeof title_type_dict[title_type] === 'undefined') ? "" : title_type_dict[title_type]);
 }
 
-
-//********OLD
-// DOM RELATED
-	function getDoi(xml){
-		xmlDoc = $.parseXML( xml );
-		$xml = $( xmlDoc );
-		var doi =  $xml.find("identifier").text();
-		return(doi);
-	};
-	
-	// Gets only the first title
-	function getTitle(xml){
-		xmlDoc = $.parseXML( xml );
-		$xml = $( xmlDoc );
-		var titles =  $xml.find("title");
-		var title = titles.first().text();
-		return(title);
-	};
-	
-	function appendRelatedId(xml, data_url){
-		var dom = $.parseXML( xml );
-		
-		if (! doRelatedIdExists(xml, data_url)){
-			var related_id_str = "<relatedIdentifier relatedIdentifierType=\"URL\" relationType=\"IsMetadataFor\">" 
-										+ data_url + " </relatedIdentifier>";
-			
-			var related_ids_found = $(dom).find("relatedIdentifiers");
-			if(related_ids_found.length <= 0){
-				related_id_str = '<relatedIdentifiers>' +related_id_str + '</relatedIdentifiers>';
-				$(dom).find("resource").first().append(related_id_str);
-			}
-			else {
-				$(dom).find("relatedIdentifiers").first().append(related_id_str);
-			}
-		}
-		
-		var dom_str = xmlToString(dom);
-		dom_str = replaceAll(dom_str,"xmlns=\"\"", "");
-		return dom_str;
-
-	}
-		
-	function escapeRegExp(str) {
-	    return str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
-	}
-
-	function doi2ckan(doi){
-		var ckan_doi = doi.replace(/\./g, '-').replace(/\//g, '-');;
-		return(ckan_doi);
-	}
-	
-	function replaceAll(str, find, replace) {
-		  return str.replace(new RegExp(escapeRegExp(find), 'gi'), replace);
-	}
-	
-
-	
-	function xmlToString(xmlData) { 
-
-	    var xmlString;
-	    //IE
-	    if (window.ActiveXObject){
-	        xmlString = xmlData.xml;
-	    }
-	    // code for Mozilla, Firefox, Opera, etc.
-	    else{
-	        xmlString = (new XMLSerializer()).serializeToString(xmlData);
-	    }
-	    return xmlString;
-	}   
