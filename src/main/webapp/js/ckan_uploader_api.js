@@ -130,46 +130,7 @@
 			});
 		displayReport("<p>" + report + "</p>");
 
-		// 1.a Create PACKAGE if not found
-		if (package_id.length <= 0) {
-			var ckan_url_create_package = ckan_url + 'package_create';
-			var organization_id = '9ee8ee5e-14d0-438b-b153-cb59c5914aae';
-					
-			var report  = " - Creating new CKAN package: " + package_name + " ('" + title + "') <br>";
-			
-			$.ajax({
-			  url : ckan_url_create_package,
-			  type : 'POST',
-			  async: false,
-	          headers: {
-	        	  'X-CKAN-API-Key':user_token
-	          },
-			  data : JSON.stringify({
-				  'name': package_name,
-				  'title': encodeURIComponent(title),
-				  'owner_org': organization_id,
-				  'datacite_field': xml_string,
-				  'url': getLandingPage(doi),
-				  'notes': 'Package Created from MetadataUpload Webapp using the FileStore API'
-			  }),
-	          dataType: "json",
-			  success : function(response, data) {
-					console.log(response);
-					console.log(data);
-	
-					package_id = response.result.id;
-					package_url = "http://ckan.wsl.ch/dataset/" + package_name;
-					report += "\t * SUCCESS, package id: " + package_id + ",  <a href=\"" + package_url + "\">" + package_url + " </a> ";
-			  },
-			  error : function(response) {
-				  console.error(response)
-				  report += "\t * FAILED: status=" + response.statusText + ", response='" + response.responseText + "'<br>";
-				}
-			});
-			displayReport("<p>" + report + "</p>");
-	
-			if (package_id.length <= 0) return (upload_result);
-		}
+
 		
 		// 2. Upload DATA
 		report  = " - Creating resource: " + datafile.name + " (" + datafile.size + " bytes) <br>";

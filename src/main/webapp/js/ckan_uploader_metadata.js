@@ -10,6 +10,18 @@ function mergeMetadata(package_data, metadata_string){
     return(merged_package);
 }
 
+function mergePackages(old_package_data, new_package_data) {
+
+	var merged_package = jQuery.extend(true, {}, old_package_data);
+	
+	for (key in new_package_data) {
+		merged_package[key] = new_package_data[key];	
+	}
+	
+	return(merged_package);
+
+}
+
 function xmlString2json(metadata_xml){
 	
 	var metadata_dom = parseXml(metadata_xml);
@@ -19,37 +31,6 @@ function xmlString2json(metadata_xml){
 	metadata_json = metadata_json.replace("{\nundefined", "{");
 
     return(JSON.parse(metadata_json));	
-}
-
-function asArray(object, default_key){
-	if  (typeof object === "undefined") return [];
-	
-	if( Object.prototype.toString.call(object) === '[object Array]' ) {
-		var object_array = [];
-		
-		object.forEach(function(element) {
-			if (typeof element !== 'undefined'){
-				object_array.push( asObject(element, default_key));
-			}
-		});
-		
-		return object_array;
-	}
-	else{
-		return ([asObject(object, default_key)]);
-	}
-
-	return object;
-}
-
-function asObject(object, default_key){
-	if (typeof object === 'undefined'){
-		return ({[default_key]:""});
-	}
-	else {
-		return( ((typeof object === 'string') ? {[default_key]:object} : object ));
-	}
-	
 }
 
 function datacite2package(datacite_string){
@@ -222,18 +203,6 @@ function datacite2package(datacite_string){
     return(ckan_package);
 }
 
-function mergePackages(old_package_data, new_package_data) {
-
-	var merged_package = jQuery.extend(true, {}, old_package_data);
-	
-	for (key in new_package_data) {
-		merged_package[key] = new_package_data[key];	
-	}
-	
-	return(merged_package);
-
-}
-
 // DataCite conversion functions
 function dataciteAffiliation2string(affiliations){
 	var affiliations_str = "";
@@ -267,3 +236,32 @@ function dataciteTitleType2ckan(title_type){
 	return ((typeof title_type_dict[title_type] === 'undefined') ? "" : title_type_dict[title_type]);
 }
 
+function asArray(object, default_key){
+	if  (typeof object === "undefined") return [];
+	
+	if( Object.prototype.toString.call(object) === '[object Array]' ) {
+		var object_array = [];
+		
+		object.forEach(function(element) {
+			if (typeof element !== 'undefined'){
+				object_array.push( asObject(element, default_key));
+			}
+		});
+		
+		return object_array;
+	}
+	else{
+		return ([asObject(object, default_key)]);
+	}
+
+	return object;
+}
+
+function asObject(object, default_key){
+	if (typeof object === 'undefined'){
+		return ({[default_key]:""});
+	}
+	else {
+		return( ((typeof object === 'string') ? {[default_key]:object} : object ));
+	}	
+}
