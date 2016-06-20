@@ -262,6 +262,10 @@ function asObject(object, default_key){
 		return ({[default_key]:""});
 	}
 	else {
-		return( ((typeof object === 'string') ? {[default_key]:object} : object ));
+		if (typeof object === 'string') return({[default_key]:object});
+		else {
+			if (typeof object[default_key] === 'undefined') {object[default_key] = "" };
+			return(object);
+		}
 	}	
 }

@@ -34,4 +34,18 @@
 		return;
 	}
 
+	function getFileNames(files){
+		var file_names = [];
+		getFileList(files).forEach(function(file)  { 
+			file_names.push( file['name'].trim());
+		});
+		return ("Files(" + files.length + "): " + file_names.join(", "));
+	}
 	
+	function getFileList(files){
+		var file_list = [];
+		for (i = 0; i < files.length; i++)  { 
+			file_list.push( files[i]);
+		}
+		return (file_list);
+	}

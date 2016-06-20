@@ -81,7 +81,6 @@
     };
         
 	function dataUpload(user_token, package_data, datafile) {
-		console.log(datafile);
 		
 		var upload_result = {'id':'', 'url':''};
 				
@@ -113,7 +112,6 @@
 			  contentType: false,   // tell jQuery not to set contentType
 			  success : function(response, data) {
 				  upload_result = response.result;
-				  console.log(response.result);
 			  },
 			  error : function(response) {
 				  console.error(response)

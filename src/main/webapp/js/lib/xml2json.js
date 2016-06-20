@@ -59,7 +59,7 @@ function xml2json(xml, tab) {
                         o["#cdata"] = X.escape(n.nodeValue);
                }
             }
-            if (!xml.attributes.length && !xml.firstChild) o = null;
+            if (!xml.attributes.length && !xml.firstChild) o = "";
          }
          else if (xml.nodeType==9) { // document.node
             o = X.toObj(xml.documentElement);

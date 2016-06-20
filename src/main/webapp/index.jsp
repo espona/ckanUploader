@@ -16,7 +16,7 @@
 
 	<div class="hidden">
 		<input type='file' accept=".xml" id="metadata_browser"  style="width:0px; height:0px;overflow: hidden;"/>
-		<input type='file'               id="datafile_browser"  style="width:0px; height:0px;overflow: hidden;"/>
+		<input type='file'               id="datafile_browser"  style="width:0px; height:0px;overflow: hidden;" multiple/>
 	</div>
 	
 	<div style="width: 100%;" >	

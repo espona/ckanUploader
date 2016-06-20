@@ -2,63 +2,64 @@
 $(document)	.ready(function() {
 			
 	// MAIN FUNCTION
-	function upload(token, name, organization, metadata, datafile) {
+	function upload(token, name, organization, metadata, datafiles) {
 			
 		report  = " UPLOAD: Package " + name ;
         displayReport("<p>" + report + "</p>");
         
         // Check if package exists, create blank otherwise
         var package_data = getPackage(token, name);
-    	var package_url = CKAN_URL + '/dataset/' + package_data.name
 
         if (typeof package_data === "undefined") {
-            displayReport("<p> Create package ...</p>");    
+            displayReport("<p> Create package ...");    
             package_data = createEmptyPackage(token, name, organization);
-            displayReport("<p> Created Package, id:" + package_data.id + "</p>");
+            displayReport("  - Created Package, id:" + package_data.id);
         }
         else {
-            displayReport("<p> Package Exists, id:" + package_data.id + ",  <a href=\"" + package_url + "\">" + package_url + " </a> </p>");
+            displayReport("  - Package Exists, id:" + package_data.id);
         }
+    	var package_url = CKAN_URL + '/dataset/' + package_data.name
+        displayReport("  <a href=\"" + package_url + "\">" + package_url + " </a> </p>");
         
         // Update Metadata
         if (metadata === "") {
             displayReport("<p> No metadata to update</p>");
         }
         else {
-            displayReport("<p> Updating Metadata ...</p>");   
+            displayReport("<p> Updating Metadata ...");   
             package_data = mergeMetadata(package_data, metadata)
             package_data = updatePackage(token, package_data)
         	console.log(package_data)
-        	displayReport(" DONE: package id: " + package_data.id + ",  <a href=\"" + package_url + "\">" + package_url + " </a> ");
-
+        	displayReport("  - DONE: package id: " + package_data.id + ",  <a href=\"" + package_url + "\">" + package_url + " </a></p> ");
         }
         
         // Add Resource
-        if (typeof datafile === "undefined") {
+        if (typeof datafiles === "undefined") {
             displayReport("<p> No data to upload</p>");
         }
         else {
-            displayReport("<p> Uploading data: " + datafile.name + " (" + datafile.size + " bytes) <br></p>");
-            var upload_result = dataUpload(token, package_data, datafile);
-            if (upload_result.url.length <= 0){
-            	 displayReport("<p>FAILED</p>");
-            } else {
-            	displayReport(" DONE: resource id: " + upload_result.id + ",  <a href=\"" + upload_result.url + "\">" + upload_result.url + " </a> ");
-
-            }
+        	datafiles.forEach(function(datafile) {
+	            displayReport("<p> Uploading data: " + datafile.name + " (" + datafile.size + " bytes)");
+	            var upload_result = dataUpload(token, package_data, datafile);
+	            if (upload_result.url.length <= 0){
+	            	 displayReport("  * FAILED</p>");
+	            	 return;
+	            } else {
+	            	displayReport("  - DONE: resource id: " + upload_result.id + ",  <a href=\"" + upload_result.url + "\">" + upload_result.url + " </a> </p>");	
+	            }
+        	});
         }
-        
     };
 
-	function preProcess(token, name, organization, metadatafile, datafile){
+	function preProcess(token, name, organization, metadatafile, datafiles){
 	      var reader = new FileReader();
 
 	      reader.onload = function (e) {
               displayReport("<p> Reading metadata </p>");
-	    	  upload(token, name, organization, reader.result, datafile);
+	    	  upload(token, name, organization, reader.result, datafiles);
 	       };
 	      
-	      if (typeof metadatafile === "undefined") {upload(token, name, organization, "", datafile);}
+	      if (typeof metadatafile === "undefined") {upload(token, name, organization, "", datafiles);}
 	      else { reader.readAsText(metadatafile);}
 	 }
 	 
@@ -81,7 +82,7 @@ $(document)	.ready(function() {
 	// Data File selection
 	$('#datafile_browser').change(function(){
 		uploadButtonCheckEnable();
-		$('#text_datafile_name').val($(this).val());
+		$('#text_datafile_name').val(getFileNames($(this).get(0).files));
     });
 	
 	$('#button_browse_datafile').click(function() {
@@ -112,12 +113,12 @@ $(document)	.ready(function() {
 		}
 		
 		// data selected
-		var datafile = undefined;
+		var datafiles = undefined;
 		if( $('#datafile_browser').val() != ""){
-			datafile = $('#datafile_browser').get(0).files[0];
+			datafiles = getFileList( $('#datafile_browser').get(0).files);
 		}
 			
-		preProcess(user_token, package_name, organization, metadatafile, datafile);
+		preProcess(user_token, package_name, organization, metadatafile, datafiles);
 
 	});
 	
