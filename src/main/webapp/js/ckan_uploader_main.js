@@ -9,13 +9,15 @@ $(document)	.ready(function() {
         
         // Check if package exists, create blank otherwise
         var package_data = getPackage(token, name);
+    	var package_url = CKAN_URL + '/dataset/' + package_data.name
+
         if (typeof package_data === "undefined") {
             displayReport("<p> Create package ...</p>");    
             package_data = createEmptyPackage(token, name, organization);
             displayReport("<p> Created Package, id:" + package_data.id + "</p>");
         }
         else {
-            displayReport("<p> Package Exists, id:" + package_data.id + "</p>");
+            displayReport("<p> Package Exists, id:" + package_data.id + ",  <a href=\"" + package_url + "\">" + package_url + " </a> </p>");
         }
         
         // Update Metadata
@@ -27,6 +29,8 @@ $(document)	.ready(function() {
             package_data = mergeMetadata(package_data, metadata)
             package_data = updatePackage(token, package_data)
         	console.log(package_data)
+        	displayReport(" DONE: package id: " + package_data.id + ",  <a href=\"" + package_url + "\">" + package_url + " </a> ");
+
         }
         
         // Add Resource
@@ -34,20 +38,17 @@ $(document)	.ready(function() {
             displayReport("<p> No data to upload</p>");
         }
         else {
-            displayReport("<p> Uploading Data ...</p>");        	
-        }
+            displayReport("<p> Uploading data: " + datafile.name + " (" + datafile.size + " bytes) <br></p>");
+            var upload_result = dataUpload(token, package_data, datafile);
+            if (upload_result.url.length <= 0){
+            	 displayReport("<p>FAILED</p>");
+            } else {
+            	displayReport(" DONE: resource id: " + upload_result.id + ",  <a href=\"" + upload_result.url + "\">" + upload_result.url + " </a> ");
 
-        // 2. Create Package with resource
-        //var upload_result = dataUpload(metadata, datafile);
-        //console.log(upload_result.data_url);
-        //if (upload_result.data_url.length <= 0){
-        //    displayReport("<p> FAILED, aborting process!</p>");
-        //	return;
-        //}
+            }
+        }
         
     };
-	
-
 
 	function preProcess(token, name, organization, metadatafile, datafile){
 	      var reader = new FileReader();
